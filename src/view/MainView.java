@@ -14,7 +14,7 @@ import java.awt.event.ItemEvent;
 import java.io.File;
 import java.util.List;
 
-import static model.Util.esFicheroCompatible;
+import static model.Util.*;
 
 public class MainView extends JFrame {
     private JComboBox priority;
@@ -35,9 +35,9 @@ public class MainView extends JFrame {
     {
         initWindow();
 
-        compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String )threshold.getSelectedItem())));
+        compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String)threshold.getSelectedItem())));
 
-        fileExplorer.addActionListener(i -> exploradorArchivos());
+        fileExplorer.addActionListener(i -> fileExplorer());
 
         priority.addItemListener(e -> {
             if(e.getStateChange()== ItemEvent.SELECTED){
@@ -45,8 +45,7 @@ public class MainView extends JFrame {
                 for (ActionListener al : compileButton.getActionListeners()) {
                     compileButton.removeActionListener(al);
                 }
-
-                compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String )threshold.getSelectedItem())));
+                compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String)threshold.getSelectedItem())));
             }
         });
 
@@ -56,19 +55,7 @@ public class MainView extends JFrame {
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
                     List<File> files = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
                     for (File f: files ){
-                        if(esFicheroCompatible(f.getAbsolutePath())) {
-                            pathFile.setText(f.getAbsolutePath());
-                            compilationProgressBar.setVisible(true);
-                            compileButton.setVisible(true);
-                            pathFile.setEditable(false);
-                        }
-                        else {
-                            System.out.println("El archivo no es un fichero c o c++"); // Sustituir por excepción
-                            pathFile.setText("Suelta aquí el fichero a compilar...");
-                            compilationProgressBar.setVisible(false);
-                            compileButton.setVisible(false);
-                            pathFile.setEditable(true);
-                        }
+                        checkFile(f);
                     }
                 } catch (Exception e) {}
             }
@@ -86,14 +73,32 @@ public class MainView extends JFrame {
         setSize(500,400);
     }
 
-    private String exploradorArchivos()
+    private void fileExplorer()
     {
         JFileChooser fc = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Ficheros C y C++", "c", "cpp");
+        fc.setCurrentDirectory(new File("C:/Users/Mykex/Desktop"));
         fc.setFileFilter(filter);
         fc.showOpenDialog(this);
 
         File f = fc.getSelectedFile();
-        return "";
+        if (f!=null) checkFile(f);
+    }
+
+    private void checkFile(File f)
+    {
+        if(isFileCompatible(f.getAbsolutePath())) {
+            pathFile.setText(f.getAbsolutePath());
+            compilationProgressBar.setVisible(true);
+            compileButton.setVisible(true);
+            pathFile.setEditable(false);
+        }
+        else {
+            System.out.println("El archivo no es un fichero c o c++"); // Sustituir por excepción
+            pathFile.setText("Suelta aquí el fichero a compilar...");
+            compilationProgressBar.setVisible(false);
+            compileButton.setVisible(false);
+            pathFile.setEditable(true);
+        }
     }
 }
