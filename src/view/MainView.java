@@ -2,9 +2,9 @@ package view;
 import model.Compiler;
 import model.CompilerEficiency;
 import model.CompilerFactory;
-import model.CompilerSize;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.datatransfer.DataFlavor;
 import java.awt.dnd.DnDConstants;
 import java.awt.dnd.DropTarget;
@@ -13,6 +13,8 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.io.File;
 import java.util.List;
+
+import static model.Util.esFicheroCompatible;
 
 public class MainView extends JFrame {
     private JComboBox priority;
@@ -24,6 +26,7 @@ public class MainView extends JFrame {
     private JButton compileButton;
     private JProgressBar compilationProgressBar;
     private JTextField pathFile;
+    private JButton fileExplorer;
 
     private Compiler c = CompilerEficiency.getCompiler();
     private CompilerFactory cf = new CompilerFactory();
@@ -33,6 +36,8 @@ public class MainView extends JFrame {
         initWindow();
 
         compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String )threshold.getSelectedItem())));
+
+        fileExplorer.addActionListener(i -> exploradorArchivos());
 
         priority.addItemListener(e -> {
             if(e.getStateChange()== ItemEvent.SELECTED){
@@ -50,10 +55,21 @@ public class MainView extends JFrame {
                 try {
                     evt.acceptDrop(DnDConstants.ACTION_COPY);
                     List<File> files = (List<File>) evt.getTransferable().getTransferData(DataFlavor.javaFileListFlavor);
-                    for (File f: files ){pathFile.setText(f.getAbsolutePath());}
-
-                    compilationProgressBar.setVisible(true);
-                    compileButton.setVisible(true);
+                    for (File f: files ){
+                        if(esFicheroCompatible(f.getAbsolutePath())) {
+                            pathFile.setText(f.getAbsolutePath());
+                            compilationProgressBar.setVisible(true);
+                            compileButton.setVisible(true);
+                            pathFile.setEditable(false);
+                        }
+                        else {
+                            System.out.println("El archivo no es un fichero c o c++"); // Sustituir por excepción
+                            pathFile.setText("Suelta aquí el fichero a compilar...");
+                            compilationProgressBar.setVisible(false);
+                            compileButton.setVisible(false);
+                            pathFile.setEditable(true);
+                        }
+                    }
                 } catch (Exception e) {}
             }
         });
@@ -68,5 +84,16 @@ public class MainView extends JFrame {
 
         setTitle("Compilador Inteligente");
         setSize(500,400);
+    }
+
+    private String exploradorArchivos()
+    {
+        JFileChooser fc = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Ficheros C y C++", "c", "cpp");
+        fc.setFileFilter(filter);
+        fc.showOpenDialog(this);
+
+        File f = fc.getSelectedFile();
+        return "";
     }
 }
