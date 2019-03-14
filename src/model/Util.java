@@ -6,7 +6,7 @@ public class Util {
         return file.substring(0, file.lastIndexOf("."));
     }
 
-    public static boolean esFicheroCompatible(String file) {
+    public static boolean isFileCompatible(String file) {
         return file.substring(file.lastIndexOf(".")).equals(".c") ||
                 file.substring(file.lastIndexOf(".")).equals(".cpp");
     }

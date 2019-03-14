@@ -77,7 +77,7 @@ public class MainView extends JFrame {
     {
         JFileChooser fc = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Ficheros C y C++", "c", "cpp");
-        fc.setCurrentDirectory(new File("C:/Users/Mykex/Desktop"));
+        fc.setCurrentDirectory(new File(System.getProperty("user.home") + "\\Desktop"));
         fc.setFileFilter(filter);
         fc.showOpenDialog(this);
 
