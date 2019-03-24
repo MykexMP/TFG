@@ -1,7 +1,7 @@
 package view;
-import model.Compiler;
-import model.CompilerEficiency;
-import model.CompilerFactory;
+import model.compiler.Compiler;
+import model.compiler.CompilerEficiency;
+import model.compiler.CompilerFactory;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;

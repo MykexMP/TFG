@@ -1,4 +1,4 @@
-package model;
+package model.compiler;
 
 public class CompilerFactory {
     public final static String EFICIENCIA = "Eficiencia";

@@ -1,4 +1,6 @@
-package model;
+package model.compiler;
+
+import model.Util;
 
 import java.util.Scanner;
 

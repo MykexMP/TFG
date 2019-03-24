@@ -1,4 +1,7 @@
-package model;
+package model.compiler;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public abstract class Compiler {
     protected static Compiler instance;
