@@ -3,7 +3,9 @@ package model.compiler;
 import model.Util;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 
 public class CompilerSize extends Compiler {
     public static Compiler getCompiler(){
@@ -14,33 +16,37 @@ public class CompilerSize extends Compiler {
     }
 
     @Override
-    public void compile(String path,int threshold) {
+    public void compile(String path, int threshold, List<String> flags) {
         String destiny = Util.deleteExtension(path) + ".exe";
         String compileCommand = "g++ -o " + destiny + " " + path;
 
         try {
-            Runtime.getRuntime().exec(compileCommand);
-            while(new File(destiny).length()==0) {} //Espera Activa
+            Process p = Runtime.getRuntime().exec(compileCommand);
+            p.waitFor();
 
             File f = new File(destiny);
             long baseLength = f.length();
 
             System.out.println("Pesa " + baseLength + " Bytes");
-
-            /* FIXME
-
-            List<String> flags = Util.getFlags();
-            List<String> flagsProfit;
+            List<String> flagsProfit = new ArrayList<>();
+            List<String> flagsNoExec = new ArrayList<>();
 
             for (String s : flags) {
-                Runtime.getRuntime().exec(compileCommand + " " + s);
-                long length = new File(destiny).length(); // ¿ Como esperar ?
-                if (baseLength*(1-threshold) > length ){
-                    System.out.println("El flag '" + s + "' aumenta la eficiencia." );
+                p = Runtime.getRuntime().exec(compileCommand + " " + s);
+                if(p.waitFor()==0) {
+                    long length = new File(destiny).length();
+                    System.out.println("El flag '" + s + "' le da tamaño " + length + " Bytes" );
+                    if (baseLength*(1-threshold) > length ) flagsProfit.add(s);
                 }
+                else flagsNoExec.add(s);
+            }
+            // Son los flags que el código del proceso devuelto no es 0.
+            System.out.println("Los siguientes flags no han podido aplicarse:");
+
+            for (String s: flagsNoExec ) {
+                System.out.println("El flag ' " + s + "'");
             }
 
-            */
         } catch (Exception e) { System.out.println("No se ha podido ejecutar el comando"); }
     }
 }

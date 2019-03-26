@@ -1,4 +1,5 @@
 package view;
+import model.Util;
 import model.compiler.Compiler;
 import model.compiler.CompilerEficiency;
 import model.compiler.CompilerFactory;
@@ -31,11 +32,16 @@ public class MainView extends JFrame {
     private Compiler c = CompilerEficiency.getCompiler();
     private CompilerFactory cf = new CompilerFactory();
 
+    private List<String> flagsC = Util.getCFlags();
+    private List<String> flagsCPP = Util.getCPPFlags();
+
     public MainView()
     {
         initWindow();
 
-        compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String)threshold.getSelectedItem())));
+        compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String)threshold.getSelectedItem()),null));
+        // FIXME
+        // Cambiar los flags de compilación , en función del fichero leido
 
         fileExplorer.addActionListener(i -> fileExplorer());
 
@@ -45,7 +51,13 @@ public class MainView extends JFrame {
                 for (ActionListener al : compileButton.getActionListeners()) {
                     compileButton.removeActionListener(al);
                 }
-                compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String)threshold.getSelectedItem())));
+                if(pathFile.getText().charAt(pathFile.getText().length()-1)=='c'){
+                    compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String)threshold.getSelectedItem()),flagsC));
+                }
+                else{
+                    compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String)threshold.getSelectedItem()),flagsCPP));
+                }
+
             }
         });
 
