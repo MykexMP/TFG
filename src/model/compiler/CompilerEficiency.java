@@ -51,6 +51,7 @@ public class CompilerEficiency extends Compiler{
             List<String> flagsNoExec = new ArrayList<>();
 
             for (String flag : flags) {
+                token = "";
                 p = Runtime.getRuntime().exec(compileCommand + " " + flag); //FIXME LANZA EXCEPCION
                 if(p.waitFor()==0) {
                     s = new Scanner(Runtime.getRuntime().exec(execCommand).getInputStream());
@@ -60,17 +61,27 @@ public class CompilerEficiency extends Compiler{
                         if(token.equals("TotalMilliseconds"))
                         {
                             s.next();
-                            // Time of the base compilation
 
                             float execTime = Float.parseFloat(s.next().replace(",","."));
-
-                            System.out.println("El flag '" + s + "' hace que tarde " + execTime + " Bytes");
+                            System.out.println("El flag '" + flag + "' hace que tarde " + execTime + " Milisegundos");
 
                             if(  execTime < baseExecTime*(1-threshold))     flagsProfit.add(flag);
                         }
                     }
                 }
                 else flagsNoExec.add(flag);
+            }
+
+            // Son los flags que el código del proceso devuelto no es 0.
+            System.out.println("Los siguientes flags no han podido aplicarse:");
+            for (String f: flagsNoExec ) {
+                System.out.println("El flag ' " + f + "'");
+            }
+
+            //
+            System.out.println("Los siguientes flags mejoran el tiempo:");
+            for (String f: flagsProfit ) {
+                System.out.println("El flag ' " + f + "'");
             }
 
         } catch (Exception e) { System.out.println("No se ha podido ejecutar el comando"); }

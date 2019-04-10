@@ -39,25 +39,15 @@ public class MainView extends JFrame {
     {
         initWindow();
 
-        compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String)threshold.getSelectedItem()),null));
-        // FIXME
-        // Cambiar los flags de compilación , en función del fichero leido
-
-        fileExplorer.addActionListener(i -> fileExplorer());
+        fileExplorer.addActionListener(i -> {
+            fileExplorer();
+            refreshCompileButton();
+        });
 
         priority.addItemListener(e -> {
             if(e.getStateChange()== ItemEvent.SELECTED){
                 c = cf.crearCompilador((String)e.getItem());
-                for (ActionListener al : compileButton.getActionListeners()) {
-                    compileButton.removeActionListener(al);
-                }
-                if(pathFile.getText().charAt(pathFile.getText().length()-1)=='c'){
-                    compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String)threshold.getSelectedItem()),flagsC));
-                }
-                else{
-                    compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String)threshold.getSelectedItem()),flagsCPP));
-                }
-
+                refreshCompileButton();
             }
         });
 
@@ -69,6 +59,7 @@ public class MainView extends JFrame {
                     for (File f: files ){
                         checkFile(f);
                     }
+                    refreshCompileButton();
                 } catch (Exception e) {}
             }
         });
@@ -83,6 +74,22 @@ public class MainView extends JFrame {
 
         setTitle("Compilador Inteligente");
         setSize(500,400);
+    }
+
+    private void refreshCompileButton() {
+        for (ActionListener al : compileButton.getActionListeners()) {
+            compileButton.removeActionListener(al);
+        }
+
+        // FIXME ¿MISMOS FLAGS?
+        Boolean x = flagsC.equals(flagsCPP);
+
+        if(pathFile.getText().charAt(pathFile.getText().length()-1)=='c'){
+            compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String)threshold.getSelectedItem()),flagsC));
+        }
+        else{
+            compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String)threshold.getSelectedItem()),flagsCPP));
+        }
     }
 
     private void fileExplorer()
