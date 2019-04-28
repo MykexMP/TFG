@@ -1,13 +1,14 @@
 package model.compiler;
 
 import model.Util;
-
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
 
 public class CompilerSize extends Compiler {
+
+    private long baseValue;
+    private long value;
+
     public static Compiler getCompiler(){
         if(instance==null || !instance.getClass().getName().equals(CompilerSize.class.getName())){
             instance = new CompilerSize();
@@ -16,37 +17,55 @@ public class CompilerSize extends Compiler {
     }
 
     @Override
-    public void compile(String path, int threshold, List<String> flags) {
-        String destiny = Util.deleteExtension(path) + ".exe";
-        String compileCommand = "g++ -o " + destiny + " " + path;
+    public void compile(String origin, int threshold, List<String> flags) {
+        destiny = Util.deleteExtension(origin) + ".exe";
+        baseCompileCommand = "g++ -o " + destiny + " " + origin;
 
-        try {
-            Process p = Runtime.getRuntime().exec(compileCommand);
-            p.waitFor();
+        getProfitFlags(flags,threshold);
+        getFinalCommand();
+    }
 
-            File f = new File(destiny);
-            long baseLength = f.length();
-
-            System.out.println("Pesa " + baseLength + " Bytes");
-            List<String> flagsProfit = new ArrayList<>();
-            List<String> flagsNoExec = new ArrayList<>();
+    @Override
+    protected void getProfitFlags(List<String> flags, int threshold){
+        try{
+            if(Runtime.getRuntime().exec(baseCompileCommand).waitFor()!=0) throw new Exception();
+            baseValue = new File(destiny).length();
 
             for (String s : flags) {
-                p = Runtime.getRuntime().exec(compileCommand + " " + s);
-                if(p.waitFor()==0) {
-                    long length = new File(destiny).length();
-                    System.out.println("El flag '" + s + "' le da tamaño " + length + " Bytes" );
-                    if (baseLength*(1-threshold) > length ) flagsProfit.add(s);
+                if(Runtime.getRuntime().exec(baseCompileCommand + " " + s).waitFor()==0) {
+                    value = new File(destiny).length();
+
+                    System.out.println("El flag '" + s + "' le da tamaño " + value + " Bytes" ); //FIXME DELETE THIS LINE ON PRODUCTION
+
+                    if (baseValue*(1-threshold) > value ) flagsProfit.add(s);
                 }
-                else flagsNoExec.add(s);
+                else flagsNoExecuted.add(s);
             }
-            // Son los flags que el código del proceso devuelto no es 0.
-            System.out.println("Los siguientes flags no han podido aplicarse:");
+        } catch (Exception e) { System.out.println("No se ha podido ejecutar el comando"); }
+    }
 
-            for (String s: flagsNoExec ) {
-                System.out.println("El flag ' " + s + "'");
+    @Override
+    protected void getFinalCommand() {
+        try {
+            for(int i=0;i<1000;i++) {
+                generateCommand();
+
+                if(!commandsUsed.contains(combinedFlagsCommand)) {
+                    commandsUsed.add(combinedFlagsCommand);
+
+                    System.out.println("El comando a ejecutar es: \n" + combinedFlagsCommand); //FIXME DELETE THIS LINE ON PRODUCTION
+
+                    if (Runtime.getRuntime().exec(combinedFlagsCommand).waitFor() == 0) {
+                        value = new File(destiny).length();
+                        System.out.println(" y pesa " + value + " Bytes"); //FIXME DELETE THIS LINE ON PRODUCTION
+                        if (value < minValue) {minValue = value; finalCommand=combinedFlagsCommand;}
+                    }
+                }
             }
 
+            System.out.println("EL MEJOR COMANDO ES '" + finalCommand + "' Y PESA " + minValue + " BYTES. "); //FIXME DELETE THIS LINE ON PRODUCTION
+
+            if(Runtime.getRuntime().exec(finalCommand).waitFor()==0) System.out.println("Ejecutable generado con éxito");
         } catch (Exception e) { System.out.println("No se ha podido ejecutar el comando"); }
     }
 }

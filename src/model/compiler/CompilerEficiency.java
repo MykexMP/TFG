@@ -1,10 +1,9 @@
 package model.compiler;
 
 import model.Util;
-
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.Scanner;
 
 public class CompilerEficiency extends Compiler{
@@ -20,7 +19,7 @@ public class CompilerEficiency extends Compiler{
         String destiny = Util.deleteExtension(path) + ".exe";
 
         String compileCommand = "g++ -o " + destiny + " " + path;
-        String execCommand = "powershell.exe Measure-Command{" + destiny + "}";
+        String execCommand = System.getProperty("os.name").startsWith("Windows") ? "powershell.exe Measure-Command{" + destiny + "}" : "time " + destiny;
 
         Process p ;
 
@@ -52,7 +51,7 @@ public class CompilerEficiency extends Compiler{
 
             for (String flag : flags) {
                 token = "";
-                p = Runtime.getRuntime().exec(compileCommand + " " + flag); //FIXME LANZA EXCEPCION
+                p = Runtime.getRuntime().exec(compileCommand + " " + flag);
                 if(p.waitFor()==0) {
                     s = new Scanner(Runtime.getRuntime().exec(execCommand).getInputStream());
                     while(s.hasNext()&&!token.equals("TotalMilliseconds"))
@@ -78,12 +77,65 @@ public class CompilerEficiency extends Compiler{
                 System.out.println("El flag ' " + f + "'");
             }
 
-            //
-            System.out.println("Los siguientes flags mejoran el tiempo:");
-            for (String f: flagsProfit ) {
-                System.out.println("El flag ' " + f + "'");
+            // FASE 2
+            Random r = new Random();
+            String compileBestCommand = compileCommand;
+            float minExecTime = Float.MAX_VALUE;
+            String finalCommand="";
+            List<String> used = new ArrayList<>();
+
+            for(int i=0;i<1000;i++) {
+                compileBestCommand = compileCommand;
+                for (String f : flagsProfit) {
+                    if (r.nextInt() % 2 == 0) {
+                        compileBestCommand = compileBestCommand + " " + f;
+                        //System.out.println("El flag ' " + f + "' esta en la muestra");
+                    }
+                }
+
+                if(!used.contains(compileBestCommand)){
+
+                used.add(compileBestCommand);
+
+                System.out.println("El comando a ejecutar es: " + (i+1));
+                System.out.println(compileBestCommand);
+
+                Process pr = Runtime.getRuntime().exec(compileBestCommand);
+                if(pr.waitFor()==0){
+                    token = "";
+                    s = new Scanner(Runtime.getRuntime().exec(execCommand).getInputStream());
+                    while(s.hasNext()&&!token.equals("TotalMilliseconds"))
+                    {
+                        token = s.next();
+                        if(token.equals("TotalMilliseconds"))
+                        {
+                            s.next();
+                            float execTime = Float.parseFloat(s.next().replace(",","."));
+                            System.out.println(" y tarda: " + execTime);
+                            if(execTime<minExecTime) {minExecTime = execTime; finalCommand=compileBestCommand;}
+                        }
+                    }
+                }
+            }
+        }
+
+            System.out.println("EL MEJOR COMANDO ES '" + finalCommand + "' Y TARDA " + minExecTime + " MILISEGUNDOS. ");
+
+            Process finalExecProc = Runtime.getRuntime().exec(finalCommand);
+            if(finalExecProc.waitFor()==0){
+                System.out.println("Ejecutable generado con éxito");
             }
 
         } catch (Exception e) { System.out.println("No se ha podido ejecutar el comando"); }
+    }
+
+    @Override
+    protected void getProfitFlags(List<String> flags, int threshold) {
+
+    }
+
+    @Override
+    protected void getFinalCommand() {
+
     }
 }
