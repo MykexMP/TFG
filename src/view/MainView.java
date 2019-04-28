@@ -1,7 +1,7 @@
 package view;
 import model.Util;
 import model.compiler.Compiler;
-import model.compiler.CompilerEficiency;
+import model.compiler.CompilerEfficiency;
 import model.compiler.CompilerFactory;
 
 import javax.swing.*;
@@ -29,7 +29,7 @@ public class MainView extends JFrame {
     private JTextField pathFile;
     private JButton fileExplorer;
 
-    private Compiler c = CompilerEficiency.getCompiler();
+    private Compiler c = CompilerEfficiency.getCompiler();
     private CompilerFactory cf = new CompilerFactory();
 
     private List<String> flagsC = Util.getCFlags();

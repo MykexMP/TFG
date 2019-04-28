@@ -8,7 +8,7 @@ public class CompilerFactory {
     {
         switch (tipo)
         {
-            case EFICIENCIA: return CompilerEficiency.getCompiler();
+            case EFICIENCIA: return CompilerEfficiency.getCompiler();
             case TAMAÑO: return CompilerSize.getCompiler();
             default: return null;
         }

@@ -1,5 +1,7 @@
 package model.compiler;
 
+import model.Util;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -17,7 +19,6 @@ public abstract class Compiler {
 
     //PHASE 2
     protected String combinedFlagsCommand; // Una variable auxiliar para guardar el comando que se va a probar.
-    protected float minValue = Float.MAX_VALUE; // El valor que usaremos para guardar el mejor comando.
     protected List<String> commandsUsed = new ArrayList<>(); // Los Comandos que se han ejecutado previamente.
     protected String finalCommand; // El comando que proporciona el mejor resultado
     protected Random r = new Random();
@@ -27,12 +28,26 @@ public abstract class Compiler {
         for (String t : flagsProfit) {
             if (r.nextInt() % 2 == 0) {
                 combinedFlagsCommand = combinedFlagsCommand + " " + t;
-                System.out.println("El flag ' " + t + "' esta en la muestra");
             }
         }
     }
 
-    public abstract void compile(String path,int threshold,List<String> flags);
+    protected void restartVariables() {
+        destiny = "";
+        baseCompileCommand = "";
+        flagsProfit = new ArrayList<>();
+        flagsNoExecuted = new ArrayList<>();
+        combinedFlagsCommand = "";
+        commandsUsed = new ArrayList<>();
+        finalCommand = "";
+    }
+
+    protected void init(String origin) {
+        destiny = Util.deleteExtension(origin) + ".exe";
+        baseCompileCommand = "g++ -o " + destiny + " " + origin;
+    }
+
+    public abstract void compile(String origin,int threshold,List<String> flags);
     protected abstract void getProfitFlags(List<String> flags, int threshold);
     protected abstract void getFinalCommand();
 }

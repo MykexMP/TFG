@@ -1,13 +1,12 @@
 package model.compiler;
 
-import model.Util;
 import java.io.File;
 import java.util.List;
 
 public class CompilerSize extends Compiler {
-
-    private long baseValue;
-    private long value;
+    private long minSize = Long.MAX_VALUE;
+    private long baseSize;
+    private long size;
 
     public static Compiler getCompiler(){
         if(instance==null || !instance.getClass().getName().equals(CompilerSize.class.getName())){
@@ -18,26 +17,25 @@ public class CompilerSize extends Compiler {
 
     @Override
     public void compile(String origin, int threshold, List<String> flags) {
-        destiny = Util.deleteExtension(origin) + ".exe";
-        baseCompileCommand = "g++ -o " + destiny + " " + origin;
-
+        init(origin);
         getProfitFlags(flags,threshold);
         getFinalCommand();
+        restartVariables();
     }
 
     @Override
     protected void getProfitFlags(List<String> flags, int threshold){
         try{
             if(Runtime.getRuntime().exec(baseCompileCommand).waitFor()!=0) throw new Exception();
-            baseValue = new File(destiny).length();
+            baseSize = new File(destiny).length();
 
             for (String s : flags) {
                 if(Runtime.getRuntime().exec(baseCompileCommand + " " + s).waitFor()==0) {
-                    value = new File(destiny).length();
+                    size = new File(destiny).length();
 
-                    System.out.println("El flag '" + s + "' le da tamaño " + value + " Bytes" ); //FIXME DELETE THIS LINE ON PRODUCTION
+                    System.out.println("El flag '" + s + "' le da tamaño " + size + " Bytes" ); //FIXME DELETE THIS LINE ON PRODUCTION
 
-                    if (baseValue*(1-threshold) > value ) flagsProfit.add(s);
+                    if (baseSize *(1-threshold) > size) flagsProfit.add(s);
                 }
                 else flagsNoExecuted.add(s);
             }
@@ -56,16 +54,25 @@ public class CompilerSize extends Compiler {
                     System.out.println("El comando a ejecutar es: \n" + combinedFlagsCommand); //FIXME DELETE THIS LINE ON PRODUCTION
 
                     if (Runtime.getRuntime().exec(combinedFlagsCommand).waitFor() == 0) {
-                        value = new File(destiny).length();
-                        System.out.println(" y pesa " + value + " Bytes"); //FIXME DELETE THIS LINE ON PRODUCTION
-                        if (value < minValue) {minValue = value; finalCommand=combinedFlagsCommand;}
+                        size = new File(destiny).length();
+                        System.out.println(" y pesa " + size + " Bytes"); //FIXME DELETE THIS LINE ON PRODUCTION
+                        if (size < minSize) {minSize = size; finalCommand=combinedFlagsCommand;}
                     }
                 }
             }
 
-            System.out.println("EL MEJOR COMANDO ES '" + finalCommand + "' Y PESA " + minValue + " BYTES. "); //FIXME DELETE THIS LINE ON PRODUCTION
+            System.out.println("EL MEJOR COMANDO ES '" + finalCommand + "' Y PESA " + minSize + " BYTES. "); //FIXME DELETE THIS LINE ON PRODUCTION
 
             if(Runtime.getRuntime().exec(finalCommand).waitFor()==0) System.out.println("Ejecutable generado con éxito");
+            restartVariables();
         } catch (Exception e) { System.out.println("No se ha podido ejecutar el comando"); }
+    }
+
+    @Override
+    protected void restartVariables() {
+        minSize = Long.MAX_VALUE;
+        baseSize = 0;
+        size = 0;
+        super.restartVariables();
     }
 }
