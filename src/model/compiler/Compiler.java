@@ -1,7 +1,6 @@
 package model.compiler;
 
 import model.Util;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -16,19 +15,21 @@ public abstract class Compiler {
     //PHASE 1
     protected List<String> flagsProfit = new ArrayList<>(); // Los Flags que se han seleccionado.
     protected List<String> flagsNoExecuted = new ArrayList<>(); // Los Flags que no han sido possible ejecutar.
+    protected float baseValue; // El valor del comando sin flags.
 
     //PHASE 2
     protected String combinedFlagsCommand; // Una variable auxiliar para guardar el comando que se va a probar.
     protected List<String> commandsUsed = new ArrayList<>(); // Los Comandos que se han ejecutado previamente.
     protected String finalCommand; // El comando que proporciona el mejor resultado
+    protected float minValue = Float.MAX_VALUE; // El valor del mejor comando.
+    protected float value; // Un valor auxiliar para comparar con minValue.
     protected Random r = new Random();
 
-    protected void generateCommand() {
+    protected void generateCommandByRandomSearch() {
         combinedFlagsCommand = baseCompileCommand;
         for (String t : flagsProfit) {
-            if (r.nextInt() % 2 == 0) {
-                combinedFlagsCommand = combinedFlagsCommand + " " + t;
-            }
+            if (r.nextInt() % 2 == 0) combinedFlagsCommand = combinedFlagsCommand + " " + t;
+            //else combinedFlagsCommand = combinedFlagsCommand + " " + Util.getfnoFlag(t); //FIXME NO FUNCIONA, ¿OVERFLOW?
         }
     }
 

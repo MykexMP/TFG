@@ -1,9 +1,9 @@
 package view;
+
 import model.Util;
 import model.compiler.Compiler;
 import model.compiler.CompilerEfficiency;
 import model.compiler.CompilerFactory;
-
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.datatransfer.DataFlavor;
@@ -46,7 +46,7 @@ public class MainView extends JFrame {
 
         priority.addItemListener(e -> {
             if(e.getStateChange()== ItemEvent.SELECTED){
-                c = cf.crearCompilador((String)e.getItem());
+                c = cf.getCompilator((String)e.getItem());
                 refreshCompileButton();
             }
         });

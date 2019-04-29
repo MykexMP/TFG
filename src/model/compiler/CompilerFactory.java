@@ -4,7 +4,7 @@ public class CompilerFactory {
     public final static String EFICIENCIA = "Eficiencia";
     public final static String TAMAÑO = "Tamaño";
 
-    public Compiler crearCompilador(String tipo)
+    public Compiler getCompilator(String tipo)
     {
         switch (tipo)
         {

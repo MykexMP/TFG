@@ -16,6 +16,10 @@ public class Util {
                 file.substring(file.lastIndexOf(".")).equals(".cpp");
     }
 
+    public static String getfnoFlag(String flag) {
+        return "-fno" + flag.substring(2);
+    }
+
     public static List<String> getCFlags(){
         String command = "gcc --help=optimizers";
         return getFlagsWithCommand(command);
