@@ -12,6 +12,8 @@ import java.awt.dnd.DropTarget;
 import java.awt.dnd.DropTargetDropEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.List;
 
@@ -28,6 +30,7 @@ public class MainView extends JFrame {
     private JProgressBar compilationProgressBar;
     private JTextField pathFile;
     private JButton fileExplorer;
+    private JTextField libraries;
 
     private Compiler c = CompilerEfficiency.getCompiler();
     private CompilerFactory cf = new CompilerFactory();
@@ -38,6 +41,13 @@ public class MainView extends JFrame {
     public MainView()
     {
         initWindow();
+
+        libraries.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                libraries.setText("");
+            }
+        });
 
         fileExplorer.addActionListener(i -> {
             fileExplorer();
@@ -81,14 +91,10 @@ public class MainView extends JFrame {
             compileButton.removeActionListener(al);
         }
 
-        // FIXME ¿MISMOS FLAGS?
-        Boolean x = flagsC.equals(flagsCPP);
-
         if(pathFile.getText().charAt(pathFile.getText().length()-1)=='c'){
-            compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String)threshold.getSelectedItem()),flagsC));
-        }
-        else{
-            compileButton.addActionListener(i -> c.compile(pathFile.getText(),Integer.parseInt((String)threshold.getSelectedItem()),flagsCPP));
+            compileButton.addActionListener(i -> c.compile(pathFile.getText(),Float.parseFloat((String)threshold.getSelectedItem()),libraries.getText(),flagsC));
+        }else{
+            compileButton.addActionListener(i -> c.compile(pathFile.getText(),Float.parseFloat((String)threshold.getSelectedItem()),libraries.getText(),flagsCPP));
         }
     }
 

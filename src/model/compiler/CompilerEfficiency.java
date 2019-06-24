@@ -1,5 +1,6 @@
 package model.compiler;
 
+import model.flag.Flag;
 import java.util.List;
 import java.util.Scanner;
 
@@ -14,91 +15,87 @@ public class CompilerEfficiency extends Compiler{
     }
 
     @Override
-    public void compile(String origin, int threshold, List<String> flags) {
-        init(origin);
+    public void compile(String origin, float threshold, String libraries, List<String> flags) {
+        init(origin,libraries);
         getProfitFlags(flags,threshold);
-        getFinalCommand();
+        getFinalCommandByHillClimbing(allFlagsExecuted); //FIXME A VECES FUNCIONA, RELACCIONADO CON LOS FLAGS, PERO NO ENTIENDO PORQUE.
+        //getFinalCommandByRandomSearch(); // FIXME WORKS FINE
+        //getFinalCommandByMostPromising(); // FIXME WORKS FINE
+        System.out.println("El mejor comando tarda " + minValue + " y es " + finalCommand );
         restartVariables();
     }
 
     @Override
-    protected void getProfitFlags(List<String> flags, int threshold) {
+    protected void getProfitFlags(List<String> flags, float threshold) {
         try{
             if(Runtime.getRuntime().exec(baseCompileCommand).waitFor()!=0) throw new Exception();
             baseValue = System.getProperty("os.name").startsWith("Windows") ? getTimeOnWindows() : getTimeOnUnix();
+            System.out.println("El comando base tarda " + baseValue);
 
             for (String flag : flags) {
                 if(Runtime.getRuntime().exec(baseCompileCommand + " " + flag).waitFor()==0) {
-                    value = getTimeOnWindows();
-                    System.out.println("El flag '" + flag + "' hace que tarde " + value + " Milisegundos");
-                    if(value < baseValue *(1-threshold)) flagsProfit.add(flag);
+                    value = System.getProperty("os.name").startsWith("Windows") ? getTimeOnWindows() : getTimeOnUnix();
+                    System.out.println("El flag '" + flag + "' hace que tarde " + value + " Milisegundos"); //FIXME DELETE ON PRODUCTION
+                    allFlagsExecuted.add(new Flag(flag,value));
+                    if(value < baseValue *(1-(threshold/100))) flagsProfit.add(new Flag(flag,value));
+                    if(value < minValue ) minValue = value; finalCommand = baseCompileCommand + " " + flag; //FIXME REVISAR
+                    value = Float.MAX_VALUE;
                 }
-                else flagsNoExecuted.add(flag);
+                else flagsNoExecuted.add(new Flag(flag));
             }
         }
         catch (Exception e) { System.out.println("No se ha podido ejecutar el comando"); }
     }
 
     @Override
-    protected void getFinalCommand() {
-        try {
-            for(int i=0;i<1000;i++) {
-                generateCommandByRandomSearch();
-
-                if(!commandsUsed.contains(combinedFlagsCommand)){
-                    commandsUsed.add(combinedFlagsCommand);
-
-                    System.out.println("El comando a ejecutar es: \n" + combinedFlagsCommand);
-
-                    if(Runtime.getRuntime().exec(combinedFlagsCommand).waitFor()==0){
-                        value = getTimeOnWindows();
-                        System.out.println(" y tarda: " + value);
-                        if(value < minValue) {
-                            minValue = value; finalCommand=combinedFlagsCommand;}
-                    }
-                }
-            }
-
-            System.out.println("EL MEJOR COMANDO ES '" + finalCommand + "' Y TARDA " + minValue + " MILISEGUNDOS. ");
-
-            if(Runtime.getRuntime().exec(finalCommand).waitFor()==0) System.out.println("Ejecutable generado con éxito");
-            restartVariables();
-        } catch (Exception e) { System.out.println("No se ha podido ejecutar el comando"); }
-    }
-
-    @Override
     protected void restartVariables() {
-        minValue = Float.MAX_VALUE;
-        baseValue = 0;
-        value = 0;
         super.restartVariables();
     }
 
     protected float getTimeOnWindows() {
-        float result=0;
+        Scanner s;
+        float result;
+        float minResult = Float.MAX_VALUE;
         try {
-            Scanner s = new Scanner(Runtime.getRuntime().exec(executeCommand).getInputStream());
-            while(s.hasNext())
-            {
-                if(s.next().equals("TotalMilliseconds"))
-                {
-                    s.next();
-                    result = Float.parseFloat(s.next().replace(",","."));
-                    break;
+            for(int i=0;i<TIMES_EXECUTION_COMMAND;i++) {
+                s = new Scanner(Runtime.getRuntime().exec(executeCommand).getInputStream());
+                while (s.hasNext()) {
+                    if (s.next().equals("TotalMilliseconds")) {
+                        s.next();
+                        result = Float.parseFloat(s.next().replace(",", "."));
+                        if (result < minResult) minResult = result;
+                        break;
+                    }
                 }
+                s.close();
             }
-            s.close();
         }catch (Exception e) {System.out.println("Error calculando el tiempo");}
-        return result;
+        return minResult;
     }
 
     protected float getTimeOnUnix() {
-        float result=0;
+        Scanner s;
+        float result;
+        float minResult = Float.MAX_VALUE;
         try {
-            Scanner s = new Scanner(Runtime.getRuntime().exec(executeCommand).getInputStream());
-            result = Float.parseFloat(s.next().replace(",","."));
-            s.close();
+            for(int i=0;i<TIMES_EXECUTION_COMMAND;i++) {
+                s = new Scanner(Runtime.getRuntime().exec(executeCommand).getInputStream());
+                result = Float.parseFloat(s.next().replace(",", "."));
+                if (result < minResult) minResult = result;
+                s.close();
+            }
         }catch (Exception e) {System.out.println("Error calculando el tiempo");}
-        return result;
+        return minResult;
+    }
+
+    @Override
+    protected void checkCommand() {
+        try {
+            if(Runtime.getRuntime().exec(combinedFlagsCommand).waitFor()==0){
+                value = System.getProperty("os.name").startsWith("Windows") ? getTimeOnWindows() : getTimeOnUnix();
+                System.out.println(" y tarda: " + value);
+                if(value < minValue) {minValue = value; finalCommand=combinedFlagsCommand;}
+            }else {System.out.println("No se ha podio ejecutar el comando con éxito: Waitfor!=0");}
+        } catch (Exception e) {System.out.println("No se ha podio ejecutar el comando con éxito");}
     }
 }

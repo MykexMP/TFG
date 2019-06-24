@@ -17,7 +17,7 @@ public class Util {
     }
 
     public static String getfnoFlag(String flag) {
-        return "-fno" + flag.substring(2);
+        return "-fno-" + flag.substring(2);
     }
 
     public static List<String> getCFlags(){
