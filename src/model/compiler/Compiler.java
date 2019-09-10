@@ -42,9 +42,9 @@ public abstract class Compiler {
         init(origin,libraries);
         getProfitFlags(flags,threshold);
         Util.randomizeFlagSortedSet(flagsToUse);
-        getFinalCommandByHillClimbing(flagsToUse); // FIXME WORKS FINE, TIEMPO DEMASIADO ALTO, NO ES RENTABLE
+        //getFinalCommandByHillClimbing(flagsToUse); // FIXME WORKS FINE, TIEMPO DEMASIADO ALTO, NO ES RENTABLE
         //getFinalCommandByRandomSearch(flagsToUse); // FIXME WORKS FINE
-        //getFinalCommandByMostPromising(flagsToUse); // FIXME WORKS FINE
+        getFinalCommandByMostPromising(flagsToUse); // FIXME WORKS FINE, BEST TIME BY FAR
         //getFinalCommandByVariableNeigborhoodSearch(flagsProfit);
         System.out.println("El mejor comando tarda " + minValue + " y es " + finalCommand );
         restartVariables();
@@ -132,7 +132,7 @@ public abstract class Compiler {
      * @param libraries Es el resto de parametros para ejecutar el comando.
      */
     protected void init(String origin,String libraries) {
-        destiny = Util.deleteExtension(origin);
+        destiny = Util.deleteExtension(origin) + ".exe";
         baseCompileCommand = "g++ -o " + destiny + " " + origin + " " + libraries;
         finalCommand = baseCompileCommand;
         combinedFlagsCommand = baseCompileCommand;

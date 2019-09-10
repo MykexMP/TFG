@@ -3,7 +3,8 @@ import view.MainView;
 
 public class main {
     public static void main(String[] args) {
-        boolean cli = false; //FIXME CAMBIAR POR ARGUMENTOS
+        //boolean cli = args[0].equals("cli");
+        boolean cli = false;
 
         if(cli)
         {
