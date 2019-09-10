@@ -14,7 +14,7 @@ public class CompilerEfficiency extends Compiler{
 
     @Override
     protected float getValueOfFile(){
-        executeCommand = System.getProperty("os.name").startsWith("Windows") ? "powershell.exe Measure-Command{" + destiny + "}" : "usr/bin/time -f \"%e\" " + destiny;
+        executeCommand = System.getProperty("os.name").startsWith("Windows") ? "powershell.exe Measure-Command{" + destiny + "}" : "/usr/bin/time -f \"%e\" " + destiny;
         //Segundos -e
         return System.getProperty("os.name").startsWith("Windows") ? getTimeOnWindows() : getTimeOnUnix();
     }
