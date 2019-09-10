@@ -103,7 +103,7 @@
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText value="Si necesitas una o más librerías, escribelas aquí (Ej. -pthread)."/>
+          <toolTipText value="Si necesitas poner algo más en el comando como una o más librerías, escribelo aquí (Ej. -pthread)."/>
         </properties>
       </component>
     </children>
