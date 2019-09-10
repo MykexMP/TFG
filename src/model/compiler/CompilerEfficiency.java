@@ -47,7 +47,9 @@ public class CompilerEfficiency extends Compiler{
         try {
             for(int i=0;i<TIMES_EXECUTION_COMMAND;i++) {
                 s = new Scanner(Runtime.getRuntime().exec(executeCommand).getInputStream());
-                result = Float.parseFloat(s.next().replace(",", "."));
+                String aux = "";
+                while(s.hasNext()) aux = s.next();
+                result = Float.parseFloat(aux.replace(",", "."));
                 result *= 1000;
                 if (result < minResult) minResult = result;
                 s.close();
