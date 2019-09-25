@@ -1,9 +1,12 @@
 package view;
 
 import model.Util;
-import model.compiler.Compiler;
-import model.compiler.CompilerEfficiency;
+import model.algorithm.Algorithm;
+import model.algorithm.AlgorithmFactory;
+import model.algorithm.AlgorithmMostPromising;
 import model.compiler.CompilerFactory;
+import model.compiler.CompilerTime;
+import model.compiler.Compiler;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.datatransfer.DataFlavor;
@@ -21,18 +24,21 @@ import static model.Util.*;
 
 public class MainView extends JFrame {
     private JComboBox priority;
-    private JComboBox threshold;
+    private JComboBox algorithm;
     private JLabel labelPriority;
     private JLabel labelThreshold;
     private JPanel rootPanel;
     private JLabel welcomeLabel;
     private JButton compileButton;
-    private JProgressBar compilationProgressBar;
     private JTextField pathFile;
     private JButton fileExplorer;
     private JTextField libraries;
+    private JLabel labelLibraries;
 
-    private Compiler c = CompilerEfficiency.getCompiler();
+    private Algorithm a = AlgorithmMostPromising.getAlgorithm();
+    private AlgorithmFactory af = new AlgorithmFactory();
+
+    private Compiler c = CompilerTime.getCompiler();
     private CompilerFactory cf = new CompilerFactory();
 
     private List<String> flagsC = Util.getCFlags();
@@ -61,6 +67,13 @@ public class MainView extends JFrame {
             }
         });
 
+        algorithm.addItemListener(e -> {
+            if(e.getStateChange()== ItemEvent.SELECTED){
+                a = af.getAlgorithm((String)e.getItem());
+                refreshCompileButton();
+            }
+        });
+
         pathFile.setDropTarget(new DropTarget() {
             public void drop(DropTargetDropEvent evt) {
                 try {
@@ -79,22 +92,20 @@ public class MainView extends JFrame {
     {
         add(rootPanel);
 
-        compilationProgressBar.setVisible(false);
         compileButton.setVisible(false);
 
         setTitle("Compilador Inteligente");
-        setSize(500,400);
+        setSize(600,400);
     }
 
     private void refreshCompileButton() {
         for (ActionListener al : compileButton.getActionListeners()) {
             compileButton.removeActionListener(al);
         }
-
         if(pathFile.getText().charAt(pathFile.getText().length()-1)=='c'){
-            compileButton.addActionListener(i -> c.compile(pathFile.getText(),Float.parseFloat((String)threshold.getSelectedItem()),libraries.getText(),flagsC));
+            compileButton.addActionListener(i -> c.compile(pathFile.getText(),libraries.getText(),flagsC,c,a));
         }else{
-            compileButton.addActionListener(i -> c.compile(pathFile.getText(),Float.parseFloat((String)threshold.getSelectedItem()),libraries.getText(),flagsCPP));
+            compileButton.addActionListener(i -> c.compile(pathFile.getText(),libraries.getText(),flagsCPP,c,a));
         }
     }
 
@@ -114,14 +125,11 @@ public class MainView extends JFrame {
     {
         if(isFileCompatible(f.getAbsolutePath())) {
             pathFile.setText(f.getAbsolutePath());
-            compilationProgressBar.setVisible(true);
             compileButton.setVisible(true);
             pathFile.setEditable(false);
         }
         else {
-            System.out.println("El archivo no es un fichero c o c++"); // Sustituir por excepción
             pathFile.setText("Suelta aquí el fichero a compilar...");
-            compilationProgressBar.setVisible(false);
             compileButton.setVisible(false);
             pathFile.setEditable(true);
         }

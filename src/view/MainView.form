@@ -8,18 +8,15 @@
     <properties/>
     <border type="none"/>
     <children>
-      <component id="5ba72" class="javax.swing.JComboBox" binding="threshold">
+      <component id="5ba72" class="javax.swing.JComboBox" binding="algorithm">
         <constraints>
           <grid row="2" column="1" row-span="2" col-span="2" vsize-policy="0" hsize-policy="2" anchor="9" fill="1" indent="0" use-parent-layout="false"/>
         </constraints>
         <properties>
           <model>
-            <item value="0"/>
-            <item value="20"/>
-            <item value="40"/>
-            <item value="60"/>
-            <item value="80"/>
-            <item value="100"/>
+            <item value="Most Promising"/>
+            <item value="Random Search"/>
+            <item value="Hill Climbing"/>
           </model>
         </properties>
       </component>
@@ -29,7 +26,7 @@
         </constraints>
         <properties>
           <labelFor value="7fcc9"/>
-          <text value="Escoge lo más importante:"/>
+          <text value="Escoge  el objetivo:"/>
         </properties>
       </component>
       <component id="90961" class="javax.swing.JLabel" binding="labelThreshold">
@@ -38,7 +35,7 @@
         </constraints>
         <properties>
           <labelFor value="5ba72"/>
-          <text value="Escoge un umbral de eficiencia:"/>
+          <text value="Escoge el algoritmo:"/>
         </properties>
       </component>
       <component id="f4402" class="javax.swing.JLabel" binding="welcomeLabel">
@@ -69,14 +66,6 @@
           <text value="Compilar"/>
         </properties>
       </component>
-      <component id="9c976" class="javax.swing.JProgressBar" binding="compilationProgressBar">
-        <constraints>
-          <grid row="6" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-        </constraints>
-        <properties>
-          <stringPainted value="true"/>
-        </properties>
-      </component>
       <component id="b338f" class="javax.swing.JTextField" binding="pathFile">
         <constraints>
           <grid row="4" column="0" row-span="1" col-span="2" vsize-policy="0" hsize-policy="6" anchor="0" fill="1" indent="0" use-parent-layout="false">
@@ -97,13 +86,21 @@
       </component>
       <component id="19f67" class="javax.swing.JTextField" binding="libraries">
         <constraints>
-          <grid row="5" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
+          <grid row="6" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="6" anchor="8" fill="1" indent="0" use-parent-layout="false">
             <preferred-size width="150" height="-1"/>
           </grid>
         </constraints>
         <properties>
           <text value=""/>
-          <toolTipText value="Si necesitas poner algo más en el comando como una o más librerías, escribelo aquí (Ej. -pthread)."/>
+          <toolTipText value=""/>
+        </properties>
+      </component>
+      <component id="873da" class="javax.swing.JLabel" binding="labelLibraries">
+        <constraints>
+          <grid row="5" column="0" row-span="1" col-span="3" vsize-policy="0" hsize-policy="0" anchor="2" fill="0" indent="0" use-parent-layout="false"/>
+        </constraints>
+        <properties>
+          <text value="Si necesitas poner algo más en el comando como una o más librerías, escribelo aquí (Ej. -pthread)."/>
         </properties>
       </component>
     </children>

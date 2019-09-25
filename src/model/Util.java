@@ -44,6 +44,11 @@ public class Util {
         return flagSet;
     }
 
+    /**
+     *
+     * @param command El comando que decide si los flags son de c o C++.
+     * @return Una lista de los flags de C o C++, dependiendo de command.
+     */
     private static List<String> getFlagsWithCommand(String command){
         List<String> flags = new ArrayList<>();
 
